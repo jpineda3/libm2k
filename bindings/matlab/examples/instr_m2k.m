@@ -18,19 +18,16 @@ classdef instr_m2k
             import clib.libm2k.libm2k.*
         end
 
-%         function ctx = connect(uri)
-%             
-%             DAC_max_rate = instr_m2k.DAC_available_sample_rates(end);  % last sample rate = max rate
-%             ADC_max_rate = ADC_available_sample_rates(end);  % last sample rate = max rate
-%             ctx = libm2k.m2kOpen(uri)
-%             if clibIsNull(ctx)
-%                 clib.libm2k.libm2k.context.contextCloseAll();
-%                 m2k = context.m2kOpen();
-%             end
-%             if isempty(ctx)
-%                 error('M2K device not found');
-%             end
-%         end
+        function m2k = connect(uri)
+            m2k = context.m2kOpen(uri);
+            if clibIsNull(m2k)
+                clib.libm2k.libm2k.context.contextCloseAll(uri);
+                m2k = context.m2kOpen();
+            end
+            if isempty(m2k)
+                error('M2K device not found');
+            end
+        end
 % 
 %         function [best_ration, best_fract] = get_best_ratio(ratio)
 %             max_it = max_buffer_size / ratio
