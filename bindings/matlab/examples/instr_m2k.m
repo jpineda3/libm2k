@@ -1,19 +1,21 @@
 classdef instr_m2k
     
     properties
-        DAC_available_sample_rates = [750, 7500, 75000, 750000, 7500000, 75000000]
-        DAC_max_rate = DAC_available_sample_rates(end)  % last sample rate = max rate
-        DAC_min_nr_of_points = 10
-        max_buffer_size = 500000
-        ADC_available_sample_rates = [1000, 10000, 100000, 1000000, 10000000, 100000000]
-        ADC_max_rate = ADC_available_sample_rates(end)  % last sample rate = max rate
-        ADC_min_nr_of_points = 10
+        DAC_available_sample_rates = [750, 7500, 75000, 750000, 7500000, 75000000];
+        DAC_max_rate
+        DAC_min_nr_of_points = 10;
+        max_buffer_size = 500000;
+        ADC_available_sample_rates = [1000, 10000, 100000, 1000000, 10000000, 100000000];
+        ADC_max_rate
+        ADC_min_nr_of_points = 10;
     end
 
 %     methods
 % 
 %         function ctx = connect(uri, calibrate)
 %             import clib.libm2k.libm2k.*
+%             DAC_max_rate = instr_m2k.DAC_available_sample_rates(end);  % last sample rate = max rate
+%             ADC_max_rate = ADC_available_sample_rates(end);  % last sample rate = max rate
 %             ctx = libm2k.m2kOpen(uri)
 %             if clibIsNull(ctx)
 %                 clib.libm2k.libm2k.context.contextCloseAll();
