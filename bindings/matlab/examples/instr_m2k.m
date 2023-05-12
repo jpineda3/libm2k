@@ -10,6 +10,93 @@ classdef instr_m2k
         ADC_min_nr_of_points = 10;
     end
 
+    methods(Static)
+        function [best_ratio, best_fract] = get_best_ratio(ratio)
+            max_it = obj.max_buffer_size / ratio;
+            best_ratio = ratio;
+            best_fract = 1;
+
+            for i = 1 : fix(max_it)
+                new_ratio = i * ratio;
+                % (new_fract, integral) = math.modf(new_ratio)
+                new_fract = mod(abs(new_ratio),1);
+                % integral = fix(new_ratio);
+                if new_fract < best_fract
+                    best_fract = new_fract;
+                    best_ratio = new_ratio;
+                end
+                if new_fract == 0
+                    break
+                end
+            end
+        end
+
+        function size = get_samples_count(rate, freq, mode)
+            ratio = rate / freq;
+            if mode == "DAC"
+                min_nr_of_points = obj.DAC_min_nr_of_points;
+                max_rate = obj.DAC_max_rate;
+            elseif mode == "ADC"
+                min_nr_of_points = obj.ADC_min_nr_of_points;
+                max_rate = obj.ADC_max_rate;
+            end
+    
+            if ratio < min_nr_of_points && rate < max_rate
+                size = 0;
+                break
+            end
+            if ratio < 2
+                size = 0;
+                break
+            end
+        
+            ratio, fract = obj.get_best_ratio(ratio);
+            % ratio = number of periods in buffer
+            % fract = what is left over - error
+        
+            size = int(ratio);
+            while size && 0x03
+                size = size * 2; % double instead of python <<
+            end
+            while size < 1024
+                size = size * 2; % double instead of python <<
+            end
+        end
+
+        function rate = get_optimal_sample_rate(freq, mode)
+            if mode == "DAC"
+                available_sample_rates = obj.DAC_available_sample_rates;
+            elseif mode == "ADC"
+                available_sample_rates = obj.ADC_available_sample_rates;
+            end
+        
+            for rate = available_sample_rates
+                buf_size = obj.get_samples_count(rate, freq, mode);
+                if buf_size
+                    break
+                end
+            end
+        end
+    
+        function [sample_rate, buf] = sine_buffer_generator(freq, ampl, offset, phase)
+            sample_rate = get_optimal_sample_rate(freq, "DAC");
+            nr_of_samples = get_samples_count(sample_rate, freq, "DAC");
+            samples_per_period = sample_rate / freq;
+            phase_in_samples = (phase / 360) * samples_per_period;
+        
+            buf = [];
+
+            for i = 1:nr_of_samples
+                buf(i) = (...
+                    offset ...
+                    + ampl ...
+                    * (sin(((i + phase_in_samples) / samples_per_period) * 2 * pi)) ...
+                )
+            end
+        end
+    end
+
+
     methods
         % Constructor
         function obj = instr_m2k()
@@ -28,93 +115,7 @@ classdef instr_m2k
                 error('M2K device not found');
             end
         end
-% 
-%         function [best_ration, best_fract] = get_best_ratio(ratio)
-%             max_it = max_buffer_size / ratio
-%             best_ratio = ratio
-%             best_fract = 1
-% 
-%             for i = 1 : fix(max_it)
-%                 new_ratio = i * ratio
-%                 % (new_fract, integral) = math.modf(new_ratio)
-%                 new_fract = mod(abs(new_ratio),1)
-%                 integral = fix(new_ratio)
-%                 if new_fract < best_fract
-%                     best_fract = new_fract
-%                     best_ratio = new_ratio
-%                 end
-%                 if new_fract == 0
-%                     break
-%                 end
-%             end
-%         end
-% 
-%         function size = get_samples_count(rate, freq, mode)
-%             
-%             ratio = rate / freq
-%         
-%             if mode == "DAC"
-%                 min_nr_of_points = DAC_min_nr_of_points
-%                 max_rate = DAC_max_rate
-%             elseif mode == "ADC"
-%                 min_nr_of_points = ADC_min_nr_of_points
-%                 max_rate = ADC_max_rate
-%             end
-%         
-%             if ratio < min_nr_of_points and rate < max_rate
-%                 size = 0
-%                 break
-%             end
-%             if ratio < 2
-%                 size = 0
-%                 break
-%             end
-%         
-%             ratio, fract = get_best_ratio(ratio)
-%             % ratio = number of periods in buffer
-%             % fract = what is left over - error
-%         
-%             size = int(ratio)
-%             while size & 0x03
-%                 size = size << 1
-%             end
-%             while size < 1024
-%                 size = size << 1
-%             end
-%         end
-% 
-%         function rate = get_optimal_sample_rate(freq, mode)
-%             if mode == "DAC"
-%                 available_sample_rates = DAC_available_sample_rates
-%             elseif mode == "ADC"
-%                 available_sample_rates = ADC_available_sample_rates
-%             end
-%         
-%             for rate = available_sample_rates
-%                 buf_size = get_samples_count(rate, freq, mode)
-%                 if buf_size
-%                     break
-%                 end
-%             end
-%         end
-% 
-%         function [sample_rate, buf] = sine_buffer_generator(freq, ampl, offset, phase)
-% 
-%             sample_rate = get_optimal_sample_rate(freq, "DAC")
-%             nr_of_samples = get_samples_count(sample_rate, freq, "DAC")
-%             samples_per_period = sample_rate / freq
-%             phase_in_samples = (phase / 360) * samples_per_period
-%         
-%             buf = []
-% 
-%             for i = 1:nr_of_samples
-%                 buf(i) = (...
-%                     offset ...
-%                     + ampl ...
-%                     * (sin(((i + phase_in_samples) / samples_per_period) * 2 * pi)) ...
-%                 )
-%             end
-%         end
+
 % 
 %         % TODO: estimate_frequency
 % 
