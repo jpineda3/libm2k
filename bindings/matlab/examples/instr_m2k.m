@@ -15,10 +15,10 @@ classdef instr_m2k
         function obj = instr_m2k()
             obj.DAC_max_rate = obj.DAC_available_sample_rates(end);  % last sample rate = max rate
             obj.ADC_max_rate = obj.ADC_available_sample_rates(end);  % last sample rate = max rate
-            import clib.libm2k.libm2k.*
         end
 
-        function m2k = connect(uri)
+        function m2k = connect(obj, uri)
+            import clib.libm2k.libm2k.*
             m2k = context.m2kOpen(uri);
             if clibIsNull(m2k)
                 clib.libm2k.libm2k.context.contextCloseAll(uri);
@@ -150,9 +150,10 @@ classdef instr_m2k
 %             end
 %         end
 %         
-%         function libm2k.contextClose(ctx)
-%             clib.libm2k.libm2k.context.contextCloseAll();
-%         end
+        function contextClose(obj)
+            import clib.libm2k.libm2k.*
+            clib.libm2k.libm2k.context.contextCloseAll();
+        end
 
     end
 end
