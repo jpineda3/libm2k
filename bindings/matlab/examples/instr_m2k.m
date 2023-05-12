@@ -10,10 +10,16 @@ classdef instr_m2k
         ADC_min_nr_of_points = 10;
     end
 
-%     methods
-% 
-%         function ctx = connect(uri, calibrate)
-%             import clib.libm2k.libm2k.*
+    methods
+        % Constructor
+        function obj = instr_m2k()
+            obj.DAC_max_rate = obj.DAC_available_sample_rates(end);  % last sample rate = max rate
+            obj.ADC_max_rate = obj.ADC_available_sample_rates(end);  % last sample rate = max rate
+            import clib.libm2k.libm2k.*
+        end
+
+%         function ctx = connect(uri)
+%             
 %             DAC_max_rate = instr_m2k.DAC_available_sample_rates(end);  % last sample rate = max rate
 %             ADC_max_rate = ADC_available_sample_rates(end);  % last sample rate = max rate
 %             ctx = libm2k.m2kOpen(uri)
@@ -151,5 +157,5 @@ classdef instr_m2k
 %             clib.libm2k.libm2k.context.contextCloseAll();
 %         end
 
-%     end
+    end
 end
