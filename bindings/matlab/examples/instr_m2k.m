@@ -10,8 +10,8 @@ classdef instr_m2k
         ADC_min_nr_of_points = 10;
     end
 
-    methods(Static)
-        function [best_ratio, best_fract] = get_best_ratio(ratio)
+    methods
+        function [best_ratio, best_fract] = get_best_ratio(obj, ratio)
             max_it = obj.max_buffer_size / ratio;
             best_ratio = ratio;
             best_fract = 1;
@@ -31,7 +31,7 @@ classdef instr_m2k
             end
         end
 
-        function size = get_samples_count(rate, freq, mode)
+        function size = get_samples_count(obj, rate, freq, mode)
             ratio = rate / freq;
             if mode == "DAC"
                 min_nr_of_points = obj.DAC_min_nr_of_points;
@@ -43,19 +43,19 @@ classdef instr_m2k
     
             if ratio < min_nr_of_points && rate < max_rate
                 size = 0;
-                break
+                return
             end
             if ratio < 2
                 size = 0;
-                break
+                return
             end
         
-            ratio, fract = obj.get_best_ratio(ratio);
+            [ratio, fract] = obj.get_best_ratio(ratio);
             % ratio = number of periods in buffer
             % fract = what is left over - error
         
-            size = int(ratio);
-            while size && 0x03
+            size = fix(ratio);
+            while bitand(size,0x03)
                 size = size * 2; % double instead of python <<
             end
             while size < 1024
@@ -63,7 +63,7 @@ classdef instr_m2k
             end
         end
 
-        function rate = get_optimal_sample_rate(freq, mode)
+        function rate = get_optimal_sample_rate(obj, freq, mode)
             if mode == "DAC"
                 available_sample_rates = obj.DAC_available_sample_rates;
             elseif mode == "ADC"
@@ -78,20 +78,20 @@ classdef instr_m2k
             end
         end
     
-        function [sample_rate, buf] = sine_buffer_generator(freq, ampl, offset, phase)
-            sample_rate = get_optimal_sample_rate(freq, "DAC");
-            nr_of_samples = get_samples_count(sample_rate, freq, "DAC");
+        function [sample_rate, buf] = sine_buffer_generator(obj, freq, ampl, offset, phase)
+            sample_rate = obj.get_optimal_sample_rate(freq, "DAC");
+            nr_of_samples = obj.get_samples_count(sample_rate, freq, "DAC");
             samples_per_period = sample_rate / freq;
             phase_in_samples = (phase / 360) * samples_per_period;
         
-            buf = [];
+            buf = zeros(1,nr_of_samples);
 
             for i = 1:nr_of_samples
                 buf(i) = (...
                     offset ...
                     + ampl ...
                     * (sin(((i + phase_in_samples) / samples_per_period) * 2 * pi)) ...
-                )
+                );
             end
         end
     end
