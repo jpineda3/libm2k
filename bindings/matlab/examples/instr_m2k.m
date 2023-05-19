@@ -116,19 +116,22 @@ classdef instr_m2k
             end
         end
 
+        % function m2k = calibrate()
+        % end
+
 % 
 %         % TODO: estimate_frequency
 % 
-%         function instr = create_instr(ctx, instrument)
-%             % Method to create instrument object from ctx
-%             if instrument == "siggen"
-%                 instr = ctx.getAnalogOut()
-%             elseif instrument == "specanalyzer" | instrument == "voltmeter"
-%                 instr = ctx.getAnalogIn()
-%             elseif instrument == "powersupply"
-%                 instr = ctx.getPowerSupply()
-%             end
-%         end       
+        function instr = create_instr(ctx, instrument)
+            % Method to create instrument object from ctx
+            if instrument == "siggen"
+                instr = ctx.getAnalogOut()
+            elseif instrument == "specanalyzer" | instrument == "voltmeter"
+                instr = ctx.getAnalogIn()
+            elseif instrument == "powersupply"
+                instr = ctx.getPowerSupply()
+            end
+        end       
 % 
 %         function retval = control(instr, chan, control_param):
 %             % Generic control method for any instrument
