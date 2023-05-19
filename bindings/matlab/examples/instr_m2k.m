@@ -130,7 +130,7 @@ classdef instr_m2k
             end
         end       
 
-        function retval = control(obj, instr, chan, control_param):
+        function retval = control(obj, instr, chan, control_param)
             % Generic control method for any instrument
             %   instr - instrument object
             %   chan - ADC or DAC channel, 0 or 1 only
@@ -139,7 +139,7 @@ classdef instr_m2k
             % TODO: implement other instruments
             % control_param should be treated as varargin
 
-            if isa(instr, 'clib.libm2k.libm2k.analog.M2kAnalogOut') & length(control_param) == 4
+            if isa(instr, 'clib.libm2k.libm2k.analog.M2kAnalogOut') && length(control_param) == 4
                 % Generates sinewave at chan
                 % Known issue - signal generated at one channel appears at the other
                 control_param = num2cell(control_param);
@@ -147,7 +147,7 @@ classdef instr_m2k
                 [samp, buf] = obj.sine_buffer_generator(tone_frequency, ampl, offset, phase);
                 instr.enableChannel(chan, true);
                 instr.setSampleRate(chan, samp);
-                instr.push(chan, buffer);
+                instr.push(chan, buf);
                 retval = 1;
             end
         end
