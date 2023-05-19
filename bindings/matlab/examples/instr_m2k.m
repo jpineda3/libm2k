@@ -122,14 +122,14 @@ classdef instr_m2k
 % 
 %         % TODO: estimate_frequency
 % 
-        function instr = create_instr(ctx, instrument)
+        function instr = create_instr(obj, ctx, instrument)
             % Method to create instrument object from ctx
             if instrument == "siggen"
-                instr = ctx.getAnalogOut()
+                instr = ctx.getAnalogOut();
             elseif instrument == "specanalyzer" | instrument == "voltmeter"
-                instr = ctx.getAnalogIn()
+                instr = ctx.getAnalogIn();
             elseif instrument == "powersupply"
-                instr = ctx.getPowerSupply()
+                instr = ctx.getPowerSupply();
             end
         end       
 % 
