@@ -119,9 +119,6 @@ classdef instr_m2k
         % function m2k = calibrate()
         % end
 
-% 
-%         % TODO: estimate_frequency
-% 
         function instr = create_instr(obj, ctx, instrument)
             % Method to create instrument object from ctx
             if instrument == "siggen"
@@ -132,32 +129,36 @@ classdef instr_m2k
                 instr = ctx.getPowerSupply();
             end
         end       
-% 
-%         function retval = control(instr, chan, control_param):
-%             % Generic control method for any instrument
-%             %   instr - instrument object
-%             %   chan - ADC or DAC channel, 0 or 1 only
-%             %   control_param - a list containing control parameters
-%             %       siggen - [tone_frequency,ampl,offset,phase]
-%             % TODO: implement other instruments
-%             % control_param should be treated as varargin
-% 
-%             if isa(instr, libm2k.M2kAnalogOut) & length(control_param) == 4
-%                 % Generates sinewave at chan
-%                 % Known issue - signal generated at one channel appears at the other
-%                 tone_frequency, ampl, offset, phase = control_param
-%                 samp, buf = sine_buffer_generator(tone_frequency, ampl, offset, phase)
-%                 instr.enableChannel(chan, True)
-%                 instr.setSampleRate(chan, samp)
-%                 instr.push(chan, buffer)
-%                 retval = 1;
-%             end
-%         end
-%         
+
+        function retval = control(obj, instr, chan, control_param):
+            % Generic control method for any instrument
+            %   instr - instrument object
+            %   chan - ADC or DAC channel, 0 or 1 only
+            %   control_param - a list containing control parameters
+            %       siggen - [tone_frequency,ampl,offset,phase]
+            % TODO: implement other instruments
+            % control_param should be treated as varargin
+
+            if isa(instr, 'clib.libm2k.libm2k.analog.M2kAnalogOut') & length(control_param) == 4
+                % Generates sinewave at chan
+                % Known issue - signal generated at one channel appears at the other
+                control_param = num2cell(control_param);
+                [tone_frequency, ampl, offset, phase] = control_param{:};
+                [samp, buf] = obj.sine_buffer_generator(tone_frequency, ampl, offset, phase);
+                instr.enableChannel(chan, true);
+                instr.setSampleRate(chan, samp);
+                instr.push(chan, buffer);
+                retval = 1;
+            end
+        end
+
         function contextClose(obj)
             import clib.libm2k.libm2k.*
             clib.libm2k.libm2k.context.contextCloseAll();
         end
+
+        % function deconstruct/release
+        % end
 
     end
 end
