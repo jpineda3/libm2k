@@ -161,8 +161,9 @@ classdef instr_m2k
             clib.libm2k.libm2k.context.contextCloseAll();
         end
 
-        % function deconstruct/release
-        % end
+        function delete(obj, m2k)
+            clear m2k;
+        end
 
     end
 end
