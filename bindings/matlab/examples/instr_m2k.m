@@ -104,7 +104,7 @@ classdef instr_m2k
             obj.ADC_max_rate = obj.ADC_available_sample_rates(end);  % last sample rate = max rate
         end
 
-        function m2k = connect(obj, uri)
+        function m2k = connect(obj, uri, calibrate)
             import clib.libm2k.libm2k.*
             m2k = context.m2kOpen(uri);
             if clibIsNull(m2k)
@@ -113,6 +113,10 @@ classdef instr_m2k
             end
             if isempty(m2k)
                 error('M2K device not found');
+            end
+            if calibrate
+                m2k.calibrateDAC();
+                m2k.calibrateADC();
             end
         end
 
