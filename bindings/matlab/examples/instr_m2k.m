@@ -55,7 +55,7 @@ classdef instr_m2k
             % fract = what is left over - error
         
             size = fix(ratio);
-            while bitand(size,0x03)
+            while bitand(size, uint16(0x03))
                 size = size * 2; % double instead of python <<
             end
             while size < 1024
