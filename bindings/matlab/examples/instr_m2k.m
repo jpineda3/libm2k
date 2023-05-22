@@ -161,14 +161,15 @@ classdef instr_m2k
             clib.libm2k.libm2k.context.contextCloseAll();
         end
 
-        function delete(obj, m2k)
-            vars = who;
-            for i = 1 : length(vars)
-                if contains(class(eval(vars{i})),'clib.libm2k.libm2k.analog')
-                    evalin('base', "clear " + string(vars{1})); 
-                end
-            end
-        end
+        % function delete(obj, m2k)
+        %     % cannot access workspace variables
+        %     vars = who;
+        %     for i = 1 : length(vars)
+        %         if contains(class(eval(vars{i})),'clib.libm2k.libm2k.analog')
+        %             evalin('base', "clear " + string(vars{1})); 
+        %         end
+        %     end
+        % end
 
     end
 end
